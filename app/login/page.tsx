@@ -11,6 +11,10 @@ export default function LoginPage() {
   const formRef = useRef<HTMLFormElement>(null)
   const [resetEmail, setResetEmail] = useState("")
   const [email, setEmail] = useState("")
+  
+  // Check if we're in development mode
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const isDevelopment = !supabaseUrl || supabaseUrl === 'https://your-project.supabase.co';
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,6 +71,21 @@ export default function LoginPage() {
     setLoading('login');
     setMessage("");
     const supabase = createClient();
+    
+    // Check if we're using the mock client (development mode)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const isDevelopment = !supabaseUrl || supabaseUrl === 'https://your-project.supabase.co';
+    
+    if (isDevelopment) {
+      // In development mode with mock client, just redirect to dashboard
+      setMessage("Development mode: Logging in...");
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1000);
+      setLoading(null);
+      return;
+    }
+    
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
     const { error } = await supabase.auth.signInWithOtp({
       email,
